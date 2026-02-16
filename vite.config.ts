@@ -13,17 +13,19 @@ import { nextPublicProcessEnv } from './plugins/nextPublicProcessEnv';
 import { restart } from './plugins/restart';
 import { restartEnvFileChange } from './plugins/restartEnvFileChange';
 
+const isPages = process.env.GITHUB_PAGES === 'true';
+
 export default defineConfig({
-  base: '/',
+  // ✅ GitHub Pages için relative base en sorunsuzu
+  base: isPages ? './' : '/',
 
   build: {
     target: 'esnext',
   },
+
   // Keep them available via import.meta.env.NEXT_PUBLIC_*
   envPrefix: 'NEXT_PUBLIC_',
   optimizeDeps: {
-    // Explicitly include fast-glob, since it gets dynamically imported and we
-    // don't want that to cause a re-bundle.
     include: ['fast-glob', 'lucide-react'],
     exclude: [
       '@hono/auth-js/react',
@@ -40,10 +42,17 @@ export default defineConfig({
   plugins: [
     nextPublicProcessEnv(),
     restartEnvFileChange(),
-    reactRouterHonoServer({
-      serverEntryPoint: './__create/index.ts',
-      runtime: 'node',
-    }),
+
+    // ✅ Pages build’inde SSR/server plugin’i kapatıyoruz (ENOENT hatasını keser)
+    ...(isPages
+      ? []
+      : [
+          reactRouterHonoServer({
+            serverEntryPoint: './__create/index.ts',
+            runtime: 'node',
+          }),
+        ]),
+
     babel({
       include: ['src/**/*.{js,jsx,ts,tsx}'],
       exclude: /node_modules/,
@@ -66,7 +75,10 @@ export default defineConfig({
     consoleToParent(),
     loadFontsFromTailwindSource(),
     addRenderIds(),
+
+    // react-router build için lazım
     reactRouter(),
+
     tsconfigPaths(),
     aliases(),
     layoutWrapperPlugin(),

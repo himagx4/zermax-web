@@ -28,38 +28,61 @@ jobs:
       - name: Install
         run: npm ci
 
-      # SSR patlasa bile client çıktısı oluşuyor, devam et.
-      - name: Build (client only)
-        run: npm run build 
-        continue-on-error: true
+      # ✅ Pages için server/SSR plugin'i kapansın diye env veriyoruz
+      - name: Build (client for Pages)
+        env:
+          GITHUB_PAGES: "true"
+        run: npm run build
 
-
-      - name: Verify client manifest exists
-        run: |
-          ls -la build || true
-          ls -la build/client || true
-          ls -la build/client/.vite || true
-          test -f build/client/.vite/manifest.json
-
+      # ✅ React Router build index.html üretmiyor; manifest'ten biz üretelim.
       - name: Generate index.html + 404.html from manifest
         run: |
-          node -e "
-          const fs=require('fs');
-          const manifestPath='build/client/.vite/manifest.json';
-          const manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
-          const keys=Object.keys(manifest);
-          const entryKey=keys.find(k=>/entry\.client/.test(k)) || keys[0];
-          const entryFile=manifest[entryKey].file;
-          let cssFile=(manifest[entryKey].css && manifest[entryKey].css[0]) || null;
-          if(!cssFile){
-            const css=fs.readdirSync('build/client/assets').find(f=>f.endsWith('.css'));
-            if(css) cssFile='assets/'+css;
+          node - <<'NODE'
+          const fs = require('fs');
+
+          const manifestPath = 'build/client/.vite/manifest.json';
+          if (!fs.existsSync(manifestPath)) {
+            console.error('Manifest not found:', manifestPath);
+            process.exit(1);
           }
-          const html='<!doctype html><html lang=\"tr\"><head><meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/><title>Zermax</title>'+(cssFile?('<link rel=\"stylesheet\" href=\"/'+cssFile+'\"/>'):'')+'</head><body><div id=\"root\"></div><script type=\"module\" src=\"/'+entryFile+'\"></script></body></html>';
+
+          const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+          const keys = Object.keys(manifest);
+
+          // entry.client dosyasını bul
+          const entryKey = keys.find(k => /entry\.client/.test(k)) || keys[0];
+          const entryFile = manifest[entryKey].file;
+
+          // css bul
+          let cssFile = (manifest[entryKey].css && manifest[entryKey].css[0]) || null;
+          if (!cssFile) {
+            const css = fs.readdirSync('build/client/assets').find(f => f.endsWith('.css'));
+            if (css) cssFile = 'assets/' + css;
+          }
+
+          // ✅ Pages için relative path (./) kullan
+          const entrySrc = './' + entryFile;
+          const cssHref = cssFile ? ('./' + cssFile) : null;
+
+          const html =
+`<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zermax</title>
+  ${cssHref ? `<link rel="stylesheet" href="${cssHref}" />` : ''}
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="${entrySrc}"></script>
+</body>
+</html>`;
+
           fs.writeFileSync('build/client/index.html', html);
-          fs.copyFileSync('build/client/index.html','build/client/404.html');
+          fs.copyFileSync('build/client/index.html', 'build/client/404.html');
           console.log('Generated index.html with', entryFile, cssFile);
-          "
+          NODE
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
