@@ -27,54 +27,41 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install
         run: npm ci
 
-      # SSR kısmı hata verebiliyor; client zaten üretiliyor.
-      - name: Build
-        run: npm run build || true
+      # ✅ IMPORTANT: SSR yok. Sadece client build.
+      - name: Build (GitHub Pages / client only)
+        run: npm run build:pages
 
-      - name: Ensure client manifest exists
+      # vite build çıktısı normalde dist/ olur; sende farklıysa alttaki kontrol bunu yakalar
+      - name: Detect output folder
         run: |
-          if [ ! -f "build/client/.vite/manifest.json" ]; then
-            echo "Manifest not found: build/client/.vite/manifest.json"
-            echo "=== build tree ==="
-            find build -maxdepth 4 -type f | head -n 200 || true
+          if [ -d "dist" ]; then
+            echo "OUT_DIR=dist" >> $GITHUB_ENV
+          elif [ -d "build/client" ]; then
+            echo "OUT_DIR=build/client" >> $GITHUB_ENV
+          else
+            echo "Could not find dist or build/client"
+            echo "=== repo tree (depth 3) ==="
+            find . -maxdepth 3 -type d | head -n 200
             exit 1
           fi
+          echo "Using OUT_DIR=$OUT_DIR"
 
-      - name: Generate index.html + 404.html from manifest
+      # SPA fallback
+      - name: Add 404 fallback (SPA)
         run: |
-          node -e "
-          const fs=require('fs');
-          const mp='build/client/.vite/manifest.json';
-          const m=JSON.parse(fs.readFileSync(mp,'utf8'));
-          const keys=Object.keys(m);
-          const entryKey=keys.find(k=>/entry\\.client/i.test(k)) || keys.find(k=>m[k]?.isEntry) || keys[0];
-          const entryFile=m[entryKey].file;
-          let cssFile=(m[entryKey].css && m[entryKey].css[0]) || null;
-          if(!cssFile){
-            const css=fs.readdirSync('build/client/assets').find(f=>f.endsWith('.css'));
-            if(css) cssFile='assets/'+css;
-          }
-          const entrySrc='./'+entryFile;
-          const cssHref=cssFile?('./'+cssFile):'';
-          const html='<!doctype html><html lang=\"tr\"><head><meta charset=\"UTF-8\"/>' +
-            '<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>' +
-            '<title>Zermax</title>' +
-            (cssHref?('<link rel=\"stylesheet\" href=\"'+cssHref+'\"/>'):'') +
-            '</head><body><div id=\"root\"></div>' +
-            '<script type=\"module\" src=\"'+entrySrc+'\"></script></body></html>';
-          fs.writeFileSync('build/client/index.html', html);
-          fs.copyFileSync('build/client/index.html','build/client/404.html');
-          console.log('Generated index.html with', entryFile, cssFile);
-          "
+          if [ -f "$OUT_DIR/index.html" ]; then
+            cp "$OUT_DIR/index.html" "$OUT_DIR/404.html"
+          fi
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/client
+          path: ${{ env.OUT_DIR }}
 
   deploy:
     runs-on: ubuntu-latest
