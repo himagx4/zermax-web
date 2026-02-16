@@ -17,6 +17,11 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: apps/web
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,59 +30,100 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
 
       - name: Install
         run: npm ci
 
-      # react-router build (client + ssr). SSR kısmı sende hata veriyor ama client çıkıyor.
-      - name: Build (allow SSR failure)
-        run: npm run build || true
+      # IMPORTANT: Client-only build (SSR yok)
+      - name: Build (client only)
+        run: npm run build:pages
 
-      - name: Verify client manifest exists
+      # Output (dist vs build/client vs başka) otomatik bul
+      - name: Detect manifest + output dir
+        id: detect
         run: |
-          ls -la build || true
-          ls -la build/client || true
-          ls -la build/client/.vite || true
-          test -f build/client/.vite/manifest.json
+          set -e
+          echo "Finding manifest..."
+          MP="$(find . -maxdepth 6 -type f -path "*/.vite/manifest.json" | head -n 1)"
+          if [ -z "$MP" ]; then
+            echo "manifest not found"
+            echo "=== list dist ==="; ls -la dist || true
+            echo "=== list build ==="; ls -la build || true
+            echo "=== find any manifest.json ==="; find . -maxdepth 6 -type f -name manifest.json || true
+            exit 1
+          fi
 
+          echo "MANIFEST=$MP" >> "$GITHUB_ENV"
+          OUTDIR="$(dirname "$(dirname "$MP")")"
+          echo "OUTDIR=$OUTDIR" >> "$GITHUB_ENV"
+
+          echo "Detected manifest: $MP"
+          echo "Detected outdir: $OUTDIR"
+          ls -la "$OUTDIR" || true
+          ls -la "$OUTDIR/assets" || true
+
+      # index.html yoksa üret, 404.html de kopyala
       - name: Generate index.html + 404.html from manifest
         run: |
           node - <<'NODE'
           const fs = require("fs");
-          const mp = "build/client/.vite/manifest.json";
-          const manifest = JSON.parse(fs.readFileSync(mp, "utf8"));
+          const path = require("path");
 
+          const mp = process.env.MANIFEST;
+          const outdir = process.env.OUTDIR;
+
+          if (!mp || !fs.existsSync(mp)) {
+            console.error("Manifest not found:", mp);
+            process.exit(1);
+          }
+
+          const manifest = JSON.parse(fs.readFileSync(mp, "utf8"));
           const keys = Object.keys(manifest);
-          const entryKey = keys.find(k => /entry\.client/i.test(k)) || keys[0];
+
+          const entryKey =
+            keys.find((k) => /entry\.client/i.test(k)) ||
+            keys.find((k) => manifest[k]?.isEntry) ||
+            keys[0];
+
           const entryFile = manifest[entryKey].file;
 
-          let cssFile = (manifest[entryKey].css && manifest[entryKey].css[0]) || null;
+          let cssFile =
+            (manifest[entryKey].css && manifest[entryKey].css[0]) || null;
+
           if (!cssFile) {
-            const css = fs.readdirSync("build/client/assets").find(f => f.endsWith(".css"));
-            if (css) cssFile = "assets/" + css;
+            const assetsDir = path.join(outdir, "assets");
+            if (fs.existsSync(assetsDir)) {
+              const css = fs.readdirSync(assetsDir).find((f) => f.endsWith(".css"));
+              if (css) cssFile = "assets/" + css;
+            }
           }
 
           const entrySrc = "./" + entryFile;
-          const cssHref = cssFile ? ("./" + cssFile) : "";
+          const cssHref = cssFile ? "./" + cssFile : "";
 
           const html =
             '<!doctype html><html lang="tr"><head><meta charset="UTF-8"/>' +
             '<meta name="viewport" content="width=device-width, initial-scale=1.0"/>' +
-            '<title>Zermax</title>' +
+            "<title>Zermax</title>" +
             (cssHref ? `<link rel="stylesheet" href="${cssHref}"/>` : "") +
             '</head><body><div id="root"></div>' +
             `<script type="module" src="${entrySrc}"></script>` +
-            '</body></html>';
+            "</body></html>";
 
-          fs.writeFileSync("build/client/index.html", html);
-          fs.copyFileSync("build/client/index.html", "build/client/404.html");
-          console.log("Generated index.html with:", entryFile, "css:", cssFile);
+          fs.writeFileSync(path.join(outdir, "index.html"), html);
+          fs.copyFileSync(path.join(outdir, "index.html"), path.join(outdir, "404.html"));
+
+          console.log("Generated index.html in", outdir);
+          console.log("Entry:", entryFile);
+          console.log("CSS:", cssFile);
           NODE
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/client
+          path: apps/web/${{ env.OUTDIR }}
 
   deploy:
     runs-on: ubuntu-latest
