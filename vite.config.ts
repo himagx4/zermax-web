@@ -17,7 +17,7 @@ const isPages = process.env.GITHUB_PAGES === 'true';
 
 export default defineConfig({
   // ✅ GitHub Pages için relative base en sorunsuzu
-  base: isPages ? './' : '/',
+  base: "/zermax-web/",
 
   build: {
     target: 'esnext',
