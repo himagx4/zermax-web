@@ -30,7 +30,7 @@ jobs:
 
       # Build SSR aşamasında hata verebiliyor; client çıktısı yine oluşuyor.
       - name: Build
-        run: npm run build || true
+        run: npm run build 
 
       - name: Generate index.html + 404.html from manifest
         run: |
