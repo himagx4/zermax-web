@@ -18,9 +18,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
@@ -28,61 +30,14 @@ jobs:
       - name: Install
         run: npm ci
 
-      # ✅ Pages için server/SSR plugin'i kapansın diye env veriyoruz
-      - name: Build (client for Pages)
+      - name: Build (Pages)
         env:
           GITHUB_PAGES: "true"
         run: npm run build
 
-      # ✅ React Router build index.html üretmiyor; manifest'ten biz üretelim.
       - name: Generate index.html + 404.html from manifest
         run: |
-          node - <<'NODE'
-          const fs = require('fs');
-
-          const manifestPath = 'build/client/.vite/manifest.json';
-          if (!fs.existsSync(manifestPath)) {
-            console.error('Manifest not found:', manifestPath);
-            process.exit(1);
-          }
-
-          const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-          const keys = Object.keys(manifest);
-
-          // entry.client dosyasını bul
-          const entryKey = keys.find(k => /entry\.client/.test(k)) || keys[0];
-          const entryFile = manifest[entryKey].file;
-
-          // css bul
-          let cssFile = (manifest[entryKey].css && manifest[entryKey].css[0]) || null;
-          if (!cssFile) {
-            const css = fs.readdirSync('build/client/assets').find(f => f.endsWith('.css'));
-            if (css) cssFile = 'assets/' + css;
-          }
-
-          // ✅ Pages için relative path (./) kullan
-          const entrySrc = './' + entryFile;
-          const cssHref = cssFile ? ('./' + cssFile) : null;
-
-          const html =
-`<!doctype html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zermax</title>
-  ${cssHref ? `<link rel="stylesheet" href="${cssHref}" />` : ''}
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="${entrySrc}"></script>
-</body>
-</html>`;
-
-          fs.writeFileSync('build/client/index.html', html);
-          fs.copyFileSync('build/client/index.html', 'build/client/404.html');
-          console.log('Generated index.html with', entryFile, cssFile);
-          NODE
+          node -e "const fs=require('fs'); const mp='build/client/.vite/manifest.json'; if(!fs.existsSync(mp)){console.error('Manifest not found:',mp); process.exit(1);} const m=JSON.parse(fs.readFileSync(mp,'utf8')); const keys=Object.keys(m); const entryKey=keys.find(k=>/entry\\.client/.test(k))||keys[0]; const entryFile=m[entryKey].file; let cssFile=(m[entryKey].css&&m[entryKey].css[0])||null; if(!cssFile){ const css=fs.readdirSync('build/client/assets').find(f=>f.endsWith('.css')); if(css) cssFile='assets/'+css; } const entrySrc='./'+entryFile; const cssHref=cssFile?('./'+cssFile):''; const html='<!doctype html><html lang=\"tr\"><head><meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/><title>Zermax</title>'+(cssHref?('<link rel=\"stylesheet\" href=\"'+cssHref+'\"/>'):'')+'</head><body><div id=\"root\"></div><script type=\"module\" src=\"'+entrySrc+'\"></script></body></html>'; fs.writeFileSync('build/client/index.html',html); fs.copyFileSync('build/client/index.html','build/client/404.html'); console.log('Generated index.html with', entryFile, cssFile);"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -95,4 +50,5 @@ jobs:
     environment:
       name: github-pages
     steps:
-      - uses: actions/deploy-pages@v4
+      - name: Deploy
+        uses: actions/deploy-pages@v4
