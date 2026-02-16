@@ -31,21 +31,19 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: apps/web/package-lock.json
+          # cache-dependency-path KALDIRILDI (path resolve hatası yüzünden)
 
       - name: Install
         run: npm ci
 
-      # IMPORTANT: Client-only build (SSR yok)
+      # Client-only build (SSR yok)
       - name: Build (client only)
         run: npm run build:pages
 
-      # Output (dist vs build/client vs başka) otomatik bul
       - name: Detect manifest + output dir
         id: detect
         run: |
           set -e
-          echo "Finding manifest..."
           MP="$(find . -maxdepth 6 -type f -path "*/.vite/manifest.json" | head -n 1)"
           if [ -z "$MP" ]; then
             echo "manifest not found"
@@ -64,7 +62,6 @@ jobs:
           ls -la "$OUTDIR" || true
           ls -la "$OUTDIR/assets" || true
 
-      # index.html yoksa üret, 404.html de kopyala
       - name: Generate index.html + 404.html from manifest
         run: |
           node - <<'NODE'
