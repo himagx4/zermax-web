@@ -17,7 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,36 +31,50 @@ jobs:
       - name: Install
         run: npm ci
 
-      # ✅ IMPORTANT: SSR yok. Sadece client build.
-      - name: Build (GitHub Pages / client only)
-        run: npm run build:pages
-
-      # vite build çıktısı normalde dist/ olur; sende farklıysa alttaki kontrol bunu yakalar
-      - name: Detect output folder
+      - name: Build (prefer client-only)
         run: |
-          if [ -d "dist" ]; then
-            echo "OUT_DIR=dist" >> $GITHUB_ENV
-          elif [ -d "build/client" ]; then
-            echo "OUT_DIR=build/client" >> $GITHUB_ENV
+          if npm run | grep -q "build:pages"; then
+            npm run build:pages
           else
-            echo "Could not find dist or build/client"
-            echo "=== repo tree (depth 3) ==="
-            find . -maxdepth 3 -type d | head -n 200
+            npm run build || true
+          fi
+
+      - name: Ensure client manifest exists
+        run: |
+          if [ ! -f "build/client/.vite/manifest.json" ] && [ ! -f "dist/manifest.json" ] && [ ! -f "dist/.vite/manifest.json" ]; then
+            echo "Manifest not found. Listing outputs:"
+            find . -maxdepth 4 -type f \( -name "manifest.json" -o -name "index.html" \) | head -n 200
             exit 1
           fi
-          echo "Using OUT_DIR=$OUT_DIR"
 
-      # SPA fallback
-      - name: Add 404 fallback (SPA)
+      - name: Generate index.html + 404.html from manifest (for build/client)
         run: |
-          if [ -f "$OUT_DIR/index.html" ]; then
-            cp "$OUT_DIR/index.html" "$OUT_DIR/404.html"
+          if [ -f "build/client/.vite/manifest.json" ]; then
+            node -e "
+              const fs=require('fs');
+              const mp='build/client/.vite/manifest.json';
+              const m=JSON.parse(fs.readFileSync(mp,'utf8'));
+              const keys=Object.keys(m);
+              const entryKey=keys.find(k=>/entry\.client/.test(k))||keys[0];
+              const entryFile=m[entryKey].file;
+              let cssFile=(m[entryKey].css&&m[entryKey].css[0])||null;
+              if(!cssFile){
+                const css=fs.readdirSync('build/client/assets').find(f=>f.endsWith('.css'));
+                if(css) cssFile='assets/'+css;
+              }
+              const html='<!doctype html><html lang=\"tr\"><head><meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/><title>Zermax</title>'+(cssFile?('<link rel=\"stylesheet\" href=\"./'+cssFile+'\"/>'):'')+'</head><body><div id=\"root\"></div><script type=\"module\" src=\"./'+entryFile+'\"></script></body></html>';
+              fs.writeFileSync('build/client/index.html',html);
+              fs.copyFileSync('build/client/index.html','build/client/404.html');
+              console.log('Generated index.html with', entryFile, cssFile);
+            "
+          else
+            echo "No build/client manifest; skipping."
           fi
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ env.OUT_DIR }}
+          path: build/client
 
   deploy:
     runs-on: ubuntu-latest
