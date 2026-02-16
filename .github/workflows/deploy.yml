@@ -30,7 +30,9 @@ jobs:
 
       # SSR patlasa bile client çıktısı oluşuyor, devam et.
       - name: Build (client only)
-        run: npm run build || true
+        run: npm run build 
+        continue-on-error: true
+
 
       - name: Verify client manifest exists
         run: |
