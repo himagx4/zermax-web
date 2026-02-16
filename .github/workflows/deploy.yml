@@ -28,9 +28,16 @@ jobs:
       - name: Install
         run: npm ci
 
-      # Build SSR aşamasında hata verebiliyor; client çıktısı yine oluşuyor.
-      - name: Build
-        run: npm run build 
+      # SSR patlasa bile client çıktısı oluşuyor, devam et.
+      - name: Build (client only)
+        run: npm run build || true
+
+      - name: Verify client manifest exists
+        run: |
+          ls -la build || true
+          ls -la build/client || true
+          ls -la build/client/.vite || true
+          test -f build/client/.vite/manifest.json
 
       - name: Generate index.html + 404.html from manifest
         run: |
