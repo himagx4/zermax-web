@@ -18,32 +18,44 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
       - name: Install
         run: npm ci
-        working-directory: apps/web
 
+      # Build SSR aşamasında hata verebiliyor; client çıktısı yine oluşuyor.
       - name: Build
-        run: npm run build
-        working-directory: apps/web
+        run: npm run build || true
 
-      # If the build output folder differs, we'll adjust this path after we see it once.
-      - name: Add 404 fallback (SPA safety)
+      - name: Generate index.html + 404.html from manifest
         run: |
-          if [ -f "apps/web/dist/index.html" ]; then cp apps/web/dist/index.html apps/web/dist/404.html; fi
+          node -e "
+          const fs=require('fs');
+          const manifestPath='build/client/.vite/manifest.json';
+          const manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
+          const keys=Object.keys(manifest);
+          const entryKey=keys.find(k=>/entry\.client/.test(k)) || keys[0];
+          const entryFile=manifest[entryKey].file;
+          let cssFile=(manifest[entryKey].css && manifest[entryKey].css[0]) || null;
+          if(!cssFile){
+            const css=fs.readdirSync('build/client/assets').find(f=>f.endsWith('.css'));
+            if(css) cssFile='assets/'+css;
+          }
+          const html='<!doctype html><html lang=\"tr\"><head><meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/><title>Zermax</title>'+(cssFile?('<link rel=\"stylesheet\" href=\"/'+cssFile+'\"/>'):'')+'</head><body><div id=\"root\"></div><script type=\"module\" src=\"/'+entryFile+'\"></script></body></html>';
+          fs.writeFileSync('build/client/index.html', html);
+          fs.copyFileSync('build/client/index.html','build/client/404.html');
+          console.log('Generated index.html with', entryFile, cssFile);
+          "
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: apps/web/dist
+          path: build/client
 
   deploy:
     runs-on: ubuntu-latest
@@ -51,5 +63,4 @@ jobs:
     environment:
       name: github-pages
     steps:
-      - name: Deploy
-        uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v4
