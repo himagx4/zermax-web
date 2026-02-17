@@ -94,7 +94,7 @@ export default function HomePage() {
               </a>
 
               {/* İstersen bu da kalsın (katalog sayfasına gider): */}
-              {/* 
+              {/*
               <Link
                 to="/catalog"
                 className="border border-zinc-700 hover:border-[#d9923b] text-white font-bold px-8 py-4 rounded-sm transition-all"
@@ -143,6 +143,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="relative rounded-sm overflow-hidden p-12 md:p-24 border border-zinc-800">
             <div className="absolute inset-0 bg-[#d9923b]/5 z-0" />
+
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
               <div className="max-w-xl text-center md:text-left">
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
@@ -164,11 +165,12 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              <div className="w-full md:w-1/3 aspect-square border-4 border-[#d9923b] p-4 rounded-sm rotate-3 hover:rotate-0 transition-transform duration-500">
+              {/* ✅ Sağdaki kare: Logo */}
+              <div className="w-full md:w-1/3 aspect-square border-4 border-[#d9923b] p-10 rounded-sm rotate-3 hover:rotate-0 transition-transform duration-500 bg-[#0d0d0d] flex items-center justify-center">
                 <img
-                  src="https://images.unsplash.com/photo-1530138226451-247071f00840?auto=format&fit=crop&q=80&w=800"
-                  alt="ZERMAX Ürün"
-                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                  src="/zermax-logo.png"
+                  alt="ZERMAX Logo"
+                  className="max-w-[75%] object-contain drop-shadow-[0_0_25px_rgba(217,146,59,0.35)]"
                 />
               </div>
             </div>
