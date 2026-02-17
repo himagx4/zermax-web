@@ -26,23 +26,20 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: ./package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install
         run: npm ci
 
-      - name: Build (Pages)
+      - name: Build (Vite SPA for Pages)
         env:
           GITHUB_PAGES: "true"
         run: npm run build:pages
 
-      - name: Generate index.html + 404.html (from manifest)
-        run: node -e "const fs=require('fs');const path=require('path');const candidates=['build/client/.vite/manifest.json','dist/.vite/manifest.json','dist/manifest.json','build/client/manifest.json'];const mp=candidates.find(p=>fs.existsSync(p));if(!mp){console.error('Manifest not found. Looked for:',candidates.join(', '));process.exit(1);}const outDir=mp.startsWith('dist')?'dist':'build/client';const m=JSON.parse(fs.readFileSync(mp,'utf8'));const entries=Object.entries(m).filter(([k,v])=>v && v.isEntry);let pick=entries.find(([k,v])=>/entry\\.client|entry-client|src\\/entry\\.client/.test(k)||/entry\\.client|entry-client/.test(v.file));if(!pick) pick=entries[0];if(!pick){console.error('No entry found in manifest');process.exit(1);}const entryFile=pick[1].file;let cssFile=(pick[1].css&&pick[1].css[0])||null;const assetsDir=path.join(outDir,'assets');if(!cssFile && fs.existsSync(assetsDir)){const css=fs.readdirSync(assetsDir).find(f=>f.endsWith('.css'));if(css) cssFile='assets/'+css;}const entrySrc='./'+entryFile;const cssHref=cssFile?('./'+cssFile):'';const html='<!doctype html><html lang=\"tr\"><head><meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/><title>Zermax</title>'+(cssHref?('<link rel=\"stylesheet\" href=\"'+cssHref+'\"/>'):'')+'</head><body><div id=\"root\"></div><script type=\"module\" src=\"'+entrySrc+'\"></script></body></html>';fs.writeFileSync(path.join(outDir,'index.html'),html);fs.writeFileSync(path.join(outDir,'404.html'),html);console.log('index.html generated in',outDir,'entry=',entryFile,'css=',cssFile);"
-
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/client
+          path: dist
 
   deploy:
     needs: build

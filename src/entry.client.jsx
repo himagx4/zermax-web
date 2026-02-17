@@ -1,11 +1,10 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-// Sayfaları import et (yollar senin projene göre ayarlı)
+import "./index.css"; // ✅ ekle (tailwind/css buradan gelsin)
+
+// Sayfaları import et
 import Home from "@/app/page.jsx";
 import About from "@/app/about/page.jsx";
 import Catalog from "@/app/catalog/page.jsx";
@@ -17,8 +16,7 @@ import Contact from "@/app/contact/page.jsx";
 import Success from "@/app/success/[orderCode]/page.jsx";
 import DepoPanel from "@/app/depo-panel/page.jsx";
 
-// GitHub Pages repo adı için basename gerekli
-const basename = import.meta.env.BASE_URL;
+const basename = import.meta.env.BASE_URL; // '/zermax-web/' veya '/'
 
 const router = createBrowserRouter(
   [
