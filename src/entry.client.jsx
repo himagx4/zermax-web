@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import "./index.css"; // ✅ ekle (tailwind/css buradan gelsin)
+import "./index.css";
 
 // Sayfaları import et
 import Home from "@/app/page.jsx";
@@ -16,7 +16,10 @@ import Contact from "@/app/contact/page.jsx";
 import Success from "@/app/success/[orderCode]/page.jsx";
 import DepoPanel from "@/app/depo-panel/page.jsx";
 
-const basename = import.meta.env.BASE_URL; // '/zermax-web/' veya '/'
+// ✅ BASE_URL bazen "/./" gelebiliyor; normalize et
+const rawBase = import.meta.env.BASE_URL || "/";
+const basename =
+  rawBase === "/./" ? "/" : rawBase.endsWith("/") ? rawBase.slice(0, -1) : rawBase;
 
 const router = createBrowserRouter(
   [

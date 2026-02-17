@@ -35,7 +35,8 @@ function findEntryClient() {
 export default defineConfig({
   // Custom domain (zermax.com.tr) root'ta yayınlanır.
   // './' relative çalışır; istersen '/' da yapabilirsin.
-  base: "./",
+  base: "/",
+
 
   build: {
     target: "esnext",
