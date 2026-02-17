@@ -1,0 +1,34 @@
+﻿[
+  {
+    "id": "1",
+    "name": "Endüstriyel Rulman 6205",
+    "description": "Yüksek dayanımlı, uzun ömürlü endüstriyel rulman.",
+    "category": "Rulmanlar",
+    "price": 850,
+    "image_url": "/images/rulman1.jpg"
+  },
+  {
+    "id": "2",
+    "name": "Hidrolik Pompa HP-300",
+    "description": "Yüksek basınçlı hidrolik sistemler için profesyonel pompa.",
+    "category": "Hidrolik Sistemler",
+    "price": 12500,
+    "image_url": "/images/hidrolik1.jpg"
+  },
+  {
+    "id": "3",
+    "name": "Konveyör Bant Modülü",
+    "description": "Ağır yük taşımaya uygun dayanıklı konveyör modülü.",
+    "category": "Konveyör Sistemleri",
+    "price": 4200,
+    "image_url": "/images/konveyor1.jpg"
+  },
+  {
+    "id": "4",
+    "name": "Makine Yedek Dişli Seti",
+    "description": "Sanayi tipi makineler için özel üretim dişli takımı.",
+    "category": "Yedek Parça",
+    "price": 2750,
+    "image_url": "/images/disli1.jpg"
+  }
+]
