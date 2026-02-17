@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
@@ -16,10 +16,14 @@ import Contact from "@/app/contact/page.jsx";
 import Success from "@/app/success/[orderCode]/page.jsx";
 import DepoPanel from "@/app/depo-panel/page.jsx";
 
-// ✅ BASE_URL bazen "/./" gelebiliyor; normalize et
+// ✅ BASE_URL bazen "/./" gibi gelebiliyor; normalize et
 const rawBase = import.meta.env.BASE_URL || "/";
 const basename =
-  rawBase === "/./" ? "/" : rawBase.endsWith("/") ? rawBase.slice(0, -1) : rawBase;
+  rawBase === "/./"
+    ? "/"
+    : rawBase.endsWith("/") && rawBase !== "/"
+    ? rawBase.slice(0, -1)
+    : rawBase;
 
 const router = createBrowserRouter(
   [
