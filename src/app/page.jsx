@@ -10,6 +10,9 @@ import {
   Headphones,
 } from "lucide-react";
 
+// ✅ Vite asset import (GitHub Pages / base path sorunlarını bitirir)
+import zermaxLogo from "../assets/zermax-logo.png";
+
 export default function HomePage() {
   const features = [
     {
@@ -38,7 +41,7 @@ export default function HomePage() {
     },
   ];
 
-  // ✅ Senin repoda mevcut PDF yolu:
+  // ✅ Public’teki PDF (senin repoda: public/catalog/ZERMAX-2026.pdf)
   const catalogPdf = "/catalog/ZERMAX-2026.pdf";
 
   return (
@@ -92,16 +95,6 @@ export default function HomePage() {
               >
                 Katalog İndir
               </a>
-
-              {/* İstersen bu da kalsın (katalog sayfasına gider): */}
-              {/*
-              <Link
-                to="/catalog"
-                className="border border-zinc-700 hover:border-[#d9923b] text-white font-bold px-8 py-4 rounded-sm transition-all"
-              >
-                Kataloğu Aç
-              </Link>
-              */}
             </div>
           </div>
         </div>
@@ -165,13 +158,16 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* ✅ Sağdaki kare: Logo */}
-              <div className="w-full md:w-1/3 aspect-square border-4 border-[#d9923b] p-10 rounded-sm rotate-3 hover:rotate-0 transition-transform duration-500 bg-[#0d0d0d] flex items-center justify-center">
-                <img
-                  src="/zermax-logo.png"
-                  alt="ZERMAX Logo"
-                  className="max-w-[75%] object-contain drop-shadow-[0_0_25px_rgba(217,146,59,0.35)]"
-                />
+              {/* ✅ Sağ kutu: ZERMAX logo */}
+              <div className="w-full md:w-1/3 aspect-square border-4 border-[#d9923b] p-4 rounded-sm rotate-3 hover:rotate-0 transition-transform duration-500 bg-black/20">
+                <div className="w-full h-full flex items-center justify-center">
+                  <img
+                    src={zermaxLogo}
+                    alt="ZERMAX Logo"
+                    className="max-w-[75%] max-h-[75%] object-contain drop-shadow-[0_0_25px_rgba(217,146,59,0.35)]"
+                    loading="lazy"
+                  />
+                </div>
               </div>
             </div>
           </div>
