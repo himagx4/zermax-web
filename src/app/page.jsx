@@ -164,7 +164,7 @@ export default function HomePage() {
                   <img
                     src={zermaxLogo}
                     alt="ZERMAX Logo"
-                    className="max-w-[100%] max-h-[100%] object-contain drop-shadow-[0_0_25px_rgba(217,146,59,0.35)]"
+                    className="w-full h-full object-contain drop-shadow-[0_0_35px_rgba(217,146,59,0.45)]"
                     loading="lazy"
                   />
                 </div>
