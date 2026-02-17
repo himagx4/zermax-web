@@ -1,33 +1,20 @@
 "use client";
 
 import React from "react";
-import {
-  FileText,
-  Download,
-  Eye,
-  ExternalLink,
-  ShieldCheck,
-} from "lucide-react";
+import { FileText, Download, Eye } from "lucide-react";
 
 export default function CatalogPage() {
-  const catalogs = [
-    {
-      title: "ZERMAX 2026 Genel Katalog",
-      description:
-        "Tüm ürün gruplarımızı kapsayan, teknik detayların yer aldığı ana kataloğumuz.",
-      fileSize: "24.5 MB",
-      updatedAt: "01.02.2026",
-      icon: <FileText size={40} className="text-[#d9923b]" />,
-    },
-    {
-      title: "Hidrolik Sistemler Kataloğu",
-      description:
-        "Hidrolik pompa, motor ve valf gruplarımız için hazırlanmış özel teknik katalog.",
-      fileSize: "12.2 MB",
-      updatedAt: "15.01.2026",
-      icon: <ShieldCheck size={40} className="text-[#d9923b]" />,
-    },
-  ];
+  // ✅ Senin repodaki dosya: public/catalog/ZERMAX-2026.pdf
+  const pdfPath = "/catalog/ZERMAX-2026.pdf";
+
+  const catalog = {
+    title: "ZERMAX 2026 Genel Katalog",
+    description:
+      "Tüm ürün gruplarımızı kapsayan, teknik detayların yer aldığı ana kataloğumuz.",
+    fileSize: "24.5 MB",
+    updatedAt: "01.02.2026",
+    icon: <FileText size={40} className="text-[#d9923b]" />,
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-24">
@@ -37,30 +24,28 @@ export default function CatalogPage() {
         </h1>
         <p className="text-zinc-500 text-lg">
           Ürünlerimize ait tüm teknik dökümanlara, ölçülere ve uygulama
-          alanlarına aşağıdaki kataloglarımızdan ulaşabilirsiniz.
+          alanlarına aşağıdaki kataloğumuzdan ulaşabilirsiniz.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {catalogs.map((catalog, idx) => (
-          <div
-            key={idx}
-            className="group bg-zinc-950 border border-zinc-900 p-8 rounded-sm hover:border-[#d9923b]/50 transition-all duration-500 relative overflow-hidden"
-          >
+      {/* ✅ Tek katalog, ortalı */}
+      <div className="flex justify-center">
+        <div className="w-full max-w-4xl">
+          <div className="group bg-zinc-950 border border-zinc-900 p-10 rounded-sm hover:border-[#d9923b]/50 transition-all duration-500 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-              <Download size={120} />
+              <Download size={140} />
             </div>
 
             <div className="mb-8">{catalog.icon}</div>
 
-            <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-[#f2bf5e] transition-colors">
+            <h3 className="text-3xl font-black text-white mb-4 group-hover:text-[#f2bf5e] transition-colors">
               {catalog.title}
             </h3>
-            <p className="text-zinc-500 mb-8 leading-relaxed">
+            <p className="text-zinc-500 mb-10 leading-relaxed text-lg">
               {catalog.description}
             </p>
 
-            <div className="flex items-center space-x-6 mb-8 text-xs font-bold text-zinc-600 uppercase tracking-widest">
+            <div className="flex flex-wrap items-center gap-6 mb-10 text-xs font-bold text-zinc-600 uppercase tracking-widest">
               <div className="flex items-center space-x-2">
                 <div className="w-1.5 h-1.5 bg-[#d9923b] rounded-full"></div>
                 <span>Boyut: {catalog.fileSize}</span>
@@ -71,39 +56,30 @@ export default function CatalogPage() {
               </div>
             </div>
 
-            <div className="flex space-x-4">
-              <button className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-4 rounded-sm flex items-center justify-center space-x-2 transition-all">
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* ✅ Önizle: PDF yeni sekmede */}
+              <a
+                href={pdfPath}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-white font-bold py-4 rounded-sm flex items-center justify-center space-x-2 transition-all"
+              >
                 <Eye size={20} />
                 <span>Önizle</span>
-              </button>
-              <button className="flex-1 bg-[#d9923b] hover:bg-[#f2bf5e] text-[#0d0d0d] font-black py-4 rounded-sm flex items-center justify-center space-x-2 transition-all">
+              </a>
+
+              {/* ✅ İndir: PDF indir */}
+              <a
+                href={pdfPath}
+                download
+                className="flex-1 bg-[#d9923b] hover:bg-[#f2bf5e] text-[#0d0d0d] font-black py-4 rounded-sm flex items-center justify-center space-x-2 transition-all"
+              >
                 <Download size={20} />
                 <span>İndir (PDF)</span>
-              </button>
+              </a>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Online Catalogue Promo */}
-      <div className="mt-24 p-12 bg-gradient-to-r from-zinc-950 to-zinc-900 border border-zinc-800 rounded-sm flex flex-col md:flex-row items-center justify-between gap-8">
-        <div>
-          <h2 className="text-3xl font-bold text-white mb-4 italic">
-            Dijital Katalog Sipariş Sistemi
-          </h2>
-          <p className="text-zinc-500 max-w-xl">
-            Kataloğumuzda yer alan ürünleri doğrudan sitemiz üzerinden sepete
-            ekleyebilir ve hızlıca sipariş oluşturabilirsiniz. Üyelik
-            gerektirmez.
-          </p>
         </div>
-        <a
-          href="/products"
-          className="bg-white text-[#0d0d0d] font-black px-10 py-5 rounded-sm hover:bg-[#f2bf5e] transition-all flex items-center space-x-2 shrink-0"
-        >
-          <span>ÜRÜNLERE GİT</span>
-          <ExternalLink size={20} />
-        </a>
       </div>
     </div>
   );
