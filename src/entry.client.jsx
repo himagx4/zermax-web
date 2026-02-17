@@ -1,10 +1,9 @@
-import * as React from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import "./index.css";
 
-// Sayfaları import et
 import Home from "@/app/page.jsx";
 import About from "@/app/about/page.jsx";
 import Catalog from "@/app/catalog/page.jsx";
@@ -16,7 +15,6 @@ import Contact from "@/app/contact/page.jsx";
 import Success from "@/app/success/[orderCode]/page.jsx";
 import DepoPanel from "@/app/depo-panel/page.jsx";
 
-// ✅ BASE_URL bazen "/./" gibi gelebiliyor; normalize et
 const rawBase = import.meta.env.BASE_URL || "/";
 const basename =
   rawBase === "/./"
@@ -42,7 +40,7 @@ const router = createBrowserRouter(
 );
 
 createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+  <StrictMode>
     <RouterProvider router={router} />
-  </React.StrictMode>
+  </StrictMode>
 );

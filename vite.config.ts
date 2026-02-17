@@ -12,7 +12,6 @@ import { nextPublicProcessEnv } from "./plugins/nextPublicProcessEnv";
 import { restart } from "./plugins/restart";
 import { restartEnvFileChange } from "./plugins/restartEnvFileChange";
 
-// Pages workflow'da env ile açıyoruz
 const isPages = process.env.GITHUB_PAGES === "true";
 
 function findEntryClient() {
@@ -24,28 +23,25 @@ function findEntryClient() {
   ];
   const found = candidates.find((p) => fs.existsSync(path.resolve(__dirname, p)));
   if (!found) {
-    throw new Error(
-      `entry.client bulunamadı. Denenenler: ${candidates.join(", ")}`
-    );
+    throw new Error(`entry.client bulunamadı. Denenenler: ${candidates.join(", ")}`);
   }
   return found;
 }
 
 export default defineConfig({
-  // ✅ Custom domain (zermax.com.tr) için doğru base
+  // ✅ Custom domain için
   base: "/",
+
+  // ✅ KRİTİK: JSX runtime automatic → React global/import gerektirmez
+  esbuild: {
+    jsx: "automatic",
+  },
 
   build: {
     target: "esnext",
-
-    // ✅ workflow ile aynı
     outDir: "build/client",
     emptyOutDir: true,
-
-    // ✅ manifest üret (script bunu arıyor)
     manifest: true,
-
-    // ✅ HTML yoksa bile bundle al
     rollupOptions: {
       input: isPages ? findEntryClient() : undefined,
     },
@@ -70,17 +66,13 @@ export default defineConfig({
     nextPublicProcessEnv(),
     restartEnvFileChange(),
 
-    // ✅ React is not defined fix: automatic JSX runtime
+    // styled-jsx için kalabilir
     babel({
       include: ["src/**/*.{js,jsx,ts,tsx}"],
       exclude: /node_modules/,
       babelConfig: {
         babelrc: false,
         configFile: false,
-        presets: [
-          ["@babel/preset-react", { runtime: "automatic" }],
-          ["@babel/preset-typescript", {}],
-        ],
         plugins: ["styled-jsx/babel"],
       },
     }),
