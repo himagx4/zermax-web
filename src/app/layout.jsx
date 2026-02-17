@@ -8,9 +8,6 @@ import {
   Phone,
   Mail,
   MapPin,
-  Instagram,
-  Linkedin,
-  Facebook,
 } from "lucide-react";
 import useCartStore from "@/store/useCartStore";
 import { Toaster } from "sonner";
@@ -42,7 +39,11 @@ function Navbar() {
 
   return (
     <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? "bg-[#0d0d0d]/95 backdrop-blur-md py-4 shadow-lg" : "bg-transparent py-6"}`}
+      className={`fixed w-full z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-[#0d0d0d]/95 backdrop-blur-md py-4 shadow-lg"
+          : "bg-transparent py-6"
+      }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
@@ -138,7 +139,8 @@ function Navbar() {
 function Footer() {
   return (
     <footer className="bg-[#080808] border-t border-zinc-900 pt-20 pb-10">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+      {/* ✅ 4 kolondan 3 kolona düşürdük */}
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
         <div className="space-y-6">
           <a href="/" className="flex flex-col inline-block">
             <span className="text-3xl font-bold tracking-tighter text-[#f2bf5e]">
@@ -151,26 +153,8 @@ function Footer() {
             partneriniz. Yüksek kalite, stok gücü ve teknik destek ile
             yanınızdayız.
           </p>
-          <div className="flex space-x-4">
-            <a
-              href="#"
-              className="p-2 bg-zinc-900 rounded-full text-zinc-400 hover:text-[#f2bf5e] transition-colors"
-            >
-              <Instagram size={18} />
-            </a>
-            <a
-              href="#"
-              className="p-2 bg-zinc-900 rounded-full text-zinc-400 hover:text-[#f2bf5e] transition-colors"
-            >
-              <Linkedin size={18} />
-            </a>
-            <a
-              href="#"
-              className="p-2 bg-zinc-900 rounded-full text-zinc-400 hover:text-[#f2bf5e] transition-colors"
-            >
-              <Facebook size={18} />
-            </a>
-          </div>
+
+          {/* ✅ Sosyal ikonlar kaldırıldı */}
         </div>
 
         <div>
@@ -213,43 +197,7 @@ function Footer() {
           </ul>
         </div>
 
-        <div>
-          <h3 className="text-white font-bold text-lg mb-6">Kategoriler</h3>
-          <ul className="space-y-4 text-zinc-500">
-            <li>
-              <a
-                href="/products?category=Yedek+Parça"
-                className="hover:text-[#f2bf5e] transition-colors"
-              >
-                Yedek Parça
-              </a>
-            </li>
-            <li>
-              <a
-                href="/products?category=Hidrolik+Sistemler"
-                className="hover:text-[#f2bf5e] transition-colors"
-              >
-                Hidrolik Sistemler
-              </a>
-            </li>
-            <li>
-              <a
-                href="/products?category=Rulmanlar"
-                className="hover:text-[#f2bf5e] transition-colors"
-              >
-                Rulmanlar
-              </a>
-            </li>
-            <li>
-              <a
-                href="/products?category=Konveyör+Sistemleri"
-                className="hover:text-[#f2bf5e] transition-colors"
-              >
-                Konveyör Sistemleri
-              </a>
-            </li>
-          </ul>
-        </div>
+        {/* ✅ Kategoriler kolonu tamamen kaldırıldı */}
 
         <div>
           <h3 className="text-white font-bold text-lg mb-6">
@@ -273,6 +221,7 @@ function Footer() {
           </ul>
         </div>
       </div>
+
       <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-zinc-900 text-center text-zinc-600 text-sm">
         © {new Date().getFullYear()} ZERMAX Endüstriyel. Tüm hakları saklıdır.
       </div>
