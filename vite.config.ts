@@ -1,4 +1,5 @@
 import path from "node:path";
+import fs from "node:fs";
 import { defineConfig } from "vite";
 import babel from "vite-plugin-babel";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -14,12 +15,42 @@ import { restartEnvFileChange } from "./plugins/restartEnvFileChange";
 // ❗ Pages workflow'da env ile açacağız
 const isPages = process.env.GITHUB_PAGES === "true";
 
+// entry dosyasını güvenli şekilde bul
+function findEntryClient() {
+  const candidates = [
+    "src/entry.client.tsx",
+    "src/entry.client.ts",
+    "src/entry.client.jsx",
+    "src/entry.client.js",
+  ];
+  const found = candidates.find((p) => fs.existsSync(path.resolve(__dirname, p)));
+  if (!found) {
+    throw new Error(
+      `entry.client bulunamadı. Şunları denedim: ${candidates.join(", ")}`
+    );
+  }
+  return found;
+}
+
 export default defineConfig({
-  // ✅ GH Pages: /zermax-web/  |  Custom domain: /
-  base: isPages ? "/zermax-web/" : "/",
+  // Custom domain (zermax.com.tr) root'ta yayınlanır.
+  // './' relative çalışır; istersen '/' da yapabilirsin.
+  base: "./",
 
   build: {
     target: "esnext",
+
+    // ✅ workflow'un beklediği klasör
+    outDir: "build/client",
+    emptyOutDir: true,
+
+    // ✅ senin node script’in buna bakıyor
+    manifest: true,
+
+    // ✅ HTML girişi yoksa bile bundle alabilmek için
+    rollupOptions: {
+      input: isPages ? findEntryClient() : undefined,
+    },
   },
 
   envPrefix: "NEXT_PUBLIC_",
@@ -40,9 +71,6 @@ export default defineConfig({
   plugins: [
     nextPublicProcessEnv(),
     restartEnvFileChange(),
-
-    // ✅ Pages build’inde server/SSR tarafını tamamen kapalı tut
-    ...(isPages ? [] : []),
 
     babel({
       include: ["src/**/*.{js,jsx,ts,tsx}"],
