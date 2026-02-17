@@ -31,41 +31,17 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Build (Pages)
+      # ✅ SSR yok -> react-router.config.ts (ssr:false) ile client-only build
+      - name: Build (Pages SPA)
         run: npm run build:pages
 
-      - name: Ensure build output exists
-        run: |
-          echo "Listing build/client:"
-          ls -la build || true
-          ls -la build/client || true
-          ls -la build/client/.vite || true
-
+      # build/client içine index.html ve 404.html üret
       - name: Generate index.html + 404.html from manifest
-        run: |
-          node -e "const fs=require('fs');
-          const mp='build/client/.vite/manifest.json';
-          if(!fs.existsSync(mp)){console.error('Manifest not found:',mp); process.exit(1);}
-          const m=JSON.parse(fs.readFileSync(mp,'utf8'));
-          const keys=Object.keys(m);
-          const entryKey=keys.find(k=>/entry\\.client/.test(k))||keys[0];
-          const entryFile=m[entryKey].file;
-          let cssFile=(m[entryKey].css&&m[entryKey].css[0])||null;
-          if(!cssFile){
-            const css=fs.existsSync('build/client/assets') ? fs.readdirSync('build/client/assets').find(f=>f.endsWith('.css')) : null;
-            if(css) cssFile='assets/'+css;
-          }
-          const entrySrc='./'+entryFile;
-          const cssHref=cssFile?('./'+cssFile):'';
-          const html='<!doctype html><html lang=\"tr\"><head><meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/><title>Zermax</title>'+(cssHref?('<link rel=\"stylesheet\" href=\"'+cssHref+'\"/>'):'')+'</head><body><div id=\"root\"></div><script type=\"module\" src=\"'+entrySrc+'\"></script></body></html>';
-          fs.writeFileSync('build/client/index.html',html);
-          fs.copyFileSync('build/client/index.html','build/client/404.html');
-          console.log('Generated index.html with', entryFile, cssFile);"
+        run: node -e "const fs=require('fs'); const mp='build/client/.vite/manifest.json'; if(!fs.existsSync(mp)){console.error('Manifest not found:',mp); process.exit(1);} const m=JSON.parse(fs.readFileSync(mp,'utf8')); const keys=Object.keys(m); const entryKey=keys.find(k=>/entry\\.client/.test(k))||keys[0]; const entryFile=m[entryKey].file; let cssFile=(m[entryKey].css&&m[entryKey].css[0])||null; if(!cssFile){ const css=fs.readdirSync('build/client/assets').find(f=>f.endsWith('.css')); if(css) cssFile='assets/'+css; } const entrySrc='./'+entryFile; const cssHref=cssFile?('./'+cssFile):''; const html='<!doctype html><html lang=\"tr\"><head><meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/><title>Zermax</title>'+(cssHref?('<link rel=\"stylesheet\" href=\"'+cssHref+'\"/>'):'')+'</head><body><div id=\"root\"></div><script type=\"module\" src=\"'+entrySrc+'\"></script></body></html>'; fs.writeFileSync('build/client/index.html',html); fs.copyFileSync('build/client/index.html','build/client/404.html'); console.log('Generated index.html with', entryFile, cssFile);"
 
+      # (Opsiyonel ama faydalı) Custom domain dosyası
       - name: Add CNAME for custom domain
-        run: |
-          echo "zermax.com.tr" > build/client/CNAME
-          echo "CNAME written"
+        run: echo "zermax.com.tr" > build/client/CNAME
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -77,6 +53,8 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
