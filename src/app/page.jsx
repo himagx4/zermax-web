@@ -8,8 +8,6 @@ import {
   Zap,
   Package,
   Headphones,
-  FileText,
-  PhoneCall,
 } from "lucide-react";
 
 export default function HomePage() {
@@ -40,106 +38,140 @@ export default function HomePage() {
     },
   ];
 
+  // ✅ Senin repoda mevcut PDF yolu:
   const catalogPdf = "/catalog/ZERMAX-2026.pdf";
 
   return (
-    <div className="min-h-screen">
-      {/* HERO */}
-      <section className="relative overflow-hidden">
-        {/* arka plan glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -left-40 w-[520px] h-[520px] bg-[#d9923b]/10 blur-[120px]" />
-          <div className="absolute -bottom-56 -right-56 w-[620px] h-[620px] bg-[#f2bf5e]/10 blur-[140px]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/70 to-black" />
+    <div className="flex flex-col">
+      {/* Hero Section */}
+      <section className="relative h-[90vh] flex items-center overflow-hidden">
+        {/* Background Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=2000"
+            alt="Endüstriyel Üretim"
+            className="w-full h-full object-cover opacity-30 grayscale"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d0d] via-[#0d0d0d]/80 to-transparent" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-6 pt-24 pb-20">
-          <div className="max-w-4xl">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#d9923b]/40 text-[#f2bf5e] text-xs font-black tracking-widest uppercase mb-8">
-              Endüstriyel çözüm ortağınız
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="max-w-2xl space-y-8">
+            <div className="inline-block border border-[#d9923b] px-4 py-1 rounded-full text-[#d9923b] text-sm font-bold tracking-widest uppercase">
+              Endüstriyel Çözüm Ortağınız
             </div>
 
-            <h1 className="text-5xl md:text-6xl font-black text-white leading-tight">
-              Endüstriyel yedek parça
-              <br />
-              <span className="text-[#f2bf5e]">ve ekipman çözümleri</span>
+            <h1 className="text-6xl md:text-8xl font-black text-white leading-tight">
+              ZERMAX <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d9923b] to-[#f2d272]">
+                GÜÇ VE HIZ.
+              </span>
             </h1>
 
-            <p className="text-zinc-400 text-lg mt-6 max-w-2xl leading-relaxed">
-              Ürün kataloğumuzu inceleyin, ihtiyacınıza uygun parçaları hızlıca bulun.
-              Teklif ve teknik detaylar için bizimle iletişime geçin.
+            <p className="text-xl text-zinc-400 leading-relaxed max-w-lg">
+              Endüstriyel dünyada kesintisiz üretim için ihtiyacınız olan her
+              parça ZERMAX güvencesiyle tek tıkla kapınızda.
             </p>
 
-            <div className="flex flex-wrap gap-4 mt-10">
+            <div className="flex flex-wrap gap-4 pt-4">
+              {/* ✅ SPA geçiş: Link */}
               <Link
                 to="/products"
-                className="bg-[#d9923b] hover:bg-[#f2bf5e] text-[#0d0d0d] font-black px-7 py-4 rounded-sm flex items-center gap-2 transition-all"
+                className="bg-[#d9923b] hover:bg-[#f2bf5e] text-[#0d0d0d] font-bold px-8 py-4 rounded-sm flex items-center space-x-2 transition-all transform hover:translate-x-1"
               >
-                Ürünleri İncele <ArrowRight size={18} />
+                <span>Ürünleri İncele</span>
+                <ArrowRight size={20} />
               </Link>
 
+              {/* ✅ Katalog indir: PDF aç (yeni sekme) */}
               <a
                 href={catalogPdf}
                 target="_blank"
                 rel="noreferrer"
-                className="bg-zinc-900/70 hover:bg-zinc-800 text-white font-bold px-7 py-4 rounded-sm flex items-center gap-2 transition-all border border-zinc-800"
+                className="border border-zinc-700 hover:border-[#d9923b] text-white font-bold px-8 py-4 rounded-sm transition-all"
               >
-                Katalog İndir <FileText size={18} />
+                Katalog İndir
               </a>
 
+              {/* İstersen bu da kalsın (katalog sayfasına gider): */}
+              {/* 
               <Link
-                to="/contact"
-                className="border border-zinc-800 hover:border-zinc-600 text-white font-bold px-7 py-4 rounded-sm flex items-center gap-2 transition-all"
+                to="/catalog"
+                className="border border-zinc-700 hover:border-[#d9923b] text-white font-bold px-8 py-4 rounded-sm transition-all"
               >
-                İletişim <PhoneCall size={18} />
+                Kataloğu Aç
               </Link>
+              */}
             </div>
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
+          <div className="w-1 h-12 bg-gradient-to-b from-[#d9923b] to-transparent rounded-full"></div>
+        </div>
+      </section>
+
+      {/* Stats / Strong Points */}
+      <section className="py-24 bg-[#0d0d0d] border-y border-zinc-900">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            {features.map((feature, idx) => (
+              <div
+                key={idx}
+                className="group p-8 bg-zinc-950/50 border border-zinc-900 hover:border-[#d9923b]/50 transition-all duration-500 rounded-sm"
+              >
+                <div className="mb-6 transform group-hover:scale-110 transition-transform duration-500">
+                  {feature.icon}
+                </div>
+
+                <h3 className="text-xl font-bold text-white mb-4 group-hover:text-[#f2bf5e] transition-colors">
+                  {feature.title}
+                </h3>
+
+                <p className="text-zinc-500 leading-relaxed text-sm">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section className="max-w-7xl mx-auto px-6 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-          {features.map((f, i) => (
-            <div
-              key={i}
-              className="bg-zinc-950 border border-zinc-900 rounded-sm p-8 hover:border-[#d9923b]/40 transition-all"
-            >
-              <div className="mb-6">{f.icon}</div>
-              <h3 className="text-xl font-black text-white mb-3">{f.title}</h3>
-              <p className="text-zinc-500 leading-relaxed">{f.description}</p>
+      {/* Featured CTA */}
+      <section className="py-24 bg-[#080808]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="relative rounded-sm overflow-hidden p-12 md:p-24 border border-zinc-800">
+            <div className="absolute inset-0 bg-[#d9923b]/5 z-0" />
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
+              <div className="max-w-xl text-center md:text-left">
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                  Tüm Yedek Parça İhtiyaçlarınız İçin <br />
+                  <span className="text-[#d9923b]">Tek Adres.</span>
+                </h2>
+
+                <p className="text-zinc-400 text-lg mb-8">
+                  ZERMAX kalitesiyle tanışmak ve size özel fiyat teklifleri
+                  almak için kataloğumuzu inceleyin.
+                </p>
+
+                {/* ✅ SPA geçiş: Link */}
+                <Link
+                  to="/contact"
+                  className="bg-white text-[#0d0d0d] font-bold px-10 py-4 rounded-sm hover:bg-[#f2bf5e] transition-all inline-block"
+                >
+                  Bize Ulaşın
+                </Link>
+              </div>
+
+              <div className="w-full md:w-1/3 aspect-square border-4 border-[#d9923b] p-4 rounded-sm rotate-3 hover:rotate-0 transition-transform duration-500">
+                <img
+                  src="https://images.unsplash.com/photo-1530138226451-247071f00840?auto=format&fit=crop&q=80&w=800"
+                  alt="ZERMAX Ürün"
+                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                />
+              </div>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA / TEKLIF */}
-      <section className="max-w-7xl mx-auto px-6 pb-24">
-        <div className="bg-gradient-to-r from-zinc-950 to-zinc-900 border border-zinc-800 rounded-sm p-10 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-              Teklif alın, doğru ürünü hızlı seçin.
-            </h2>
-            <p className="text-zinc-500 max-w-2xl leading-relaxed">
-              İhtiyacınızı yazın; ürün alternatifi, teknik detay ve fiyat teklifini hızlıca iletelim.
-              Kataloğu da inceleyerek doğru seçim yapabilirsiniz.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-4">
-            <Link
-              to="/contact"
-              className="bg-white text-[#0d0d0d] font-black px-8 py-4 rounded-sm hover:bg-[#f2bf5e] transition-all"
-            >
-              Bize Ulaşın
-            </Link>
-            <Link
-              to="/catalog"
-              className="bg-zinc-900 hover:bg-zinc-800 text-white font-bold px-8 py-4 rounded-sm border border-zinc-800 transition-all"
-            >
-              Kataloğu Aç
-            </Link>
           </div>
         </div>
       </section>
