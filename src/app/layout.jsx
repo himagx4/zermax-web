@@ -1,14 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  ShoppingCart,
-  Menu,
-  X,
-  Phone,
-  Mail,
-  MapPin,
-} from "lucide-react";
+import { ShoppingCart, Menu, X, Phone, Mail, MapPin } from "lucide-react";
 import useCartStore from "@/store/useCartStore";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -137,10 +130,21 @@ function Navbar() {
 }
 
 function Footer() {
+  const addressText =
+    "Çavuşoğlu Mahallesi Ticarethane Sokak No:14 Yeşilyurt / Malatya";
+
+  const mapsUrl =
+    "https://www.google.com/maps/search/?api=1&query=%C3%87avu%C5%9Fo%C4%9Flu+Mahallesi+Ticarethane+Sokak+No%3A14+Ye%C5%9Filyurt+Malatya";
+
+  const phoneNumberDisplay = "+90 532 260 06 22";
+  const phoneNumberTel = "+905322600622";
+  const email = "zermax@zermax.com.tr";
+
   return (
     <footer className="bg-[#080808] border-t border-zinc-900 pt-20 pb-10">
-      {/* ✅ 4 kolondan 3 kolona düşürdük */}
+      {/* ✅ 3 kolon */}
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+        {/* Sol */}
         <div className="space-y-6">
           <a href="/" className="flex flex-col inline-block">
             <span className="text-3xl font-bold tracking-tighter text-[#f2bf5e]">
@@ -148,19 +152,17 @@ function Footer() {
             </span>
             <div className="h-0.5 w-full bg-[#d9923b]"></div>
           </a>
+
           <p className="text-zinc-500 leading-relaxed">
             Endüstriyel yedek parça ve üretim çözümlerinde güvenilir
             partneriniz. Yüksek kalite, stok gücü ve teknik destek ile
             yanınızdayız.
           </p>
-
-          {/* ✅ Sosyal ikonlar kaldırıldı */}
         </div>
 
-        <div>
-          <h3 className="text-white font-bold text-lg mb-6">
-            Hızlı Bağlantılar
-          </h3>
+        {/* ✅ Orta: Hızlı Bağlantılar ortalı */}
+        <div className="text-center md:text-center">
+          <h3 className="text-white font-bold text-lg mb-6">Hızlı Bağlantılar</h3>
           <ul className="space-y-4 text-zinc-500">
             <li>
               <a
@@ -197,26 +199,40 @@ function Footer() {
           </ul>
         </div>
 
-        {/* ✅ Kategoriler kolonu tamamen kaldırıldı */}
-
+        {/* ✅ Sağ: İletişim tıklanabilir */}
         <div>
-          <h3 className="text-white font-bold text-lg mb-6">
-            İletişim Bilgileri
-          </h3>
+          <h3 className="text-white font-bold text-lg mb-6">İletişim Bilgileri</h3>
           <ul className="space-y-4">
             <li className="flex items-start space-x-3 text-zinc-500">
               <MapPin className="text-[#d9923b] mt-1 shrink-0" size={18} />
-              <span>
-                Çavuşoğlu Mahallesi Ticarethane Sokak No:14 Yeşilyurt / Malatya
-              </span>
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-[#f2bf5e] transition-colors"
+              >
+                {addressText}
+              </a>
             </li>
+
             <li className="flex items-center space-x-3 text-zinc-500">
               <Phone className="text-[#d9923b] shrink-0" size={18} />
-              <span>+90 532 260 06 22</span>
+              <a
+                href={`tel:${phoneNumberTel}`}
+                className="hover:text-[#f2bf5e] transition-colors"
+              >
+                {phoneNumberDisplay}
+              </a>
             </li>
+
             <li className="flex items-center space-x-3 text-zinc-500">
               <Mail className="text-[#d9923b] shrink-0" size={18} />
-              <span>zermax@zermax.com.tr</span>
+              <a
+                href={`mailto:${email}`}
+                className="hover:text-[#f2bf5e] transition-colors"
+              >
+                {email}
+              </a>
             </li>
           </ul>
         </div>
