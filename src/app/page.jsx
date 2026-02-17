@@ -159,12 +159,12 @@ export default function HomePage() {
               </div>
 
               {/* ✅ Sağ kutu: ZERMAX logo */}
-              <div className="w-full md:w-1/3 aspect-square border-4 border-[#d9923b] p-4 rounded-sm rotate-3 hover:rotate-0 transition-transform duration-500 bg-black/20">
+              <div className="w-full md:w-1/3 aspect-square border-4 border-[#d9923b] p-4 rounded-sm rotate-2 hover:rotate-0 transition-transform duration-500 bg-black/20">
                 <div className="w-full h-full flex items-center justify-center">
                   <img
                     src={zermaxLogo}
                     alt="ZERMAX Logo"
-                    className="max-w-[75%] max-h-[75%] object-contain drop-shadow-[0_0_25px_rgba(217,146,59,0.35)]"
+                    className="max-w-[100%] max-h-[100%] object-contain drop-shadow-[0_0_25px_rgba(217,146,59,0.35)]"
                     loading="lazy"
                   />
                 </div>
