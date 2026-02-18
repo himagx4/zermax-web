@@ -51,6 +51,8 @@ export default function ProductsPage() {
     toast.success(`${product.name} sepete eklendi`);
   };
 
+  const hasAnyProducts = (products || []).length > 0;
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
       <div className="mb-12">
@@ -99,7 +101,16 @@ export default function ProductsPage() {
           <Loader2 className="animate-spin text-[#d9923b]" size={48} />
           <p className="text-zinc-500">Ürünler yükleniyor...</p>
         </div>
+      ) : !hasAnyProducts ? (
+        // ✅ Şirket istediği: ürünler şimdilik boş
+        <div className="text-center py-24 border border-dashed border-zinc-800 rounded-sm">
+          <h2 className="text-2xl font-bold text-white mb-3">Ürünler yakında</h2>
+          <p className="text-zinc-500">
+            Ürün listemiz güncelleniyor. Kısa süre içinde eklenecek.
+          </p>
+        </div>
       ) : filteredProducts.length === 0 ? (
+        // ✅ Ürün var ama filtre/arama sonucu yok
         <div className="text-center py-24 border border-dashed border-zinc-800 rounded-sm">
           <p className="text-zinc-500">
             Aradığınız kriterlere uygun ürün bulunamadı.
@@ -142,7 +153,6 @@ export default function ProductsPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    {/* ✅ a href yerine Link */}
                     <Link
                       to={`/products/${product.id}`}
                       className="flex items-center justify-center space-x-2 border border-zinc-800 hover:border-zinc-700 text-zinc-400 py-2.5 rounded-sm transition-all"
@@ -161,7 +171,6 @@ export default function ProductsPage() {
                   </div>
                 </div>
               </div>
-
             </div>
           ))}
         </div>
