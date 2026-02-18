@@ -25,10 +25,6 @@ export default function ProductsPage() {
 
   const categories = [
     "Hepsi",
-    "Yedek Parça",
-    "Hidrolik Sistemler",
-    "Rulmanlar",
-    "Konveyör Sistemleri",
   ];
 
   const filteredProducts = useMemo(() => {
